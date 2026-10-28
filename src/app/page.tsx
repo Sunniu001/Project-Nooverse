@@ -6,10 +6,6 @@ import HeroSection from '@/components/HeroSection';
 import OriginDossierSection from '@/components/OriginDossierSection';
 import BeforeNooverseSection from '@/components/BeforeNooverseSection';
 import TimelineSection from '@/components/TimelineSection';
-import LoreArchive from '@/components/LoreArchive';
-import TacticalRadarSection from '@/components/TacticalRadarSection';
-import BlocsSection from '@/components/BlocsSection';
-import SciFiFooter from '@/components/SciFiFooter';
 import TerminalModal from '@/components/TerminalModal';
 import VideoBackground from '@/components/VideoBackground';
 import HudScrollbar from '@/components/HudScrollbar';
@@ -17,8 +13,8 @@ import TelemetryPanels from '@/components/TelemetryPanels';
 import BackgroundAudio from '@/components/BackgroundAudio';
 
 const NAV_TABS = ['HOME', 'ORIGIN', 'BEFORE', 'TIMELINE'];
-const SECTION_IDS = ['home', 'origin', 'before', 'timeline', 'archives', 'radar', 'blocs'];
-const TOTAL_SECTIONS = 7;
+const SECTION_IDS = ['home', 'origin', 'before', 'timeline'];
+const TOTAL_SECTIONS = 4;
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState(0);
@@ -119,21 +115,6 @@ export default function Home() {
           e.preventDefault();
           lastWheelTime = now;
           goToSection(activeSection - 1);
-        }
-      }
-
-      // When at the top of Archives (Section 4) and scrolling UP:
-      else if (activeSection === 4) {
-        const archivesEl = document.getElementById('archives');
-        if (archivesEl && window.scrollY <= archivesEl.offsetTop + 20 && delta < -25) {
-          if (now - lastWheelTime < 750) {
-            e.preventDefault();
-            return;
-          }
-          // In one scroll, glide up to Timeline!
-          e.preventDefault();
-          lastWheelTime = now;
-          goToSection(3);
         }
       }
     };
@@ -340,69 +321,11 @@ export default function Home() {
           isSettled={isTimelineSettled}
           entryDirection={timelineEntryDir}
           onHorizontalBoundary={(dir) => {
-            goToSection(dir === 'next' ? 4 : 2);
+            if (dir === 'prev') {
+              goToSection(2);
+            }
           }}
         />
-      </section>
-
-      {/* SECTION 4: SECTOR 3 DECLASSIFIED LORE ARCHIVES */}
-      <section
-        id="archives"
-        style={{
-          position: 'relative',
-          width: '100%',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(3, 7, 12, 0.94)',
-          backdropFilter: 'blur(10px)',
-          padding: '60px 0',
-          boxSizing: 'border-box',
-        }}
-      >
-        <LoreArchive />
-      </section>
-
-      {/* SECTION 5: TACTICAL RECON RADAR GRID */}
-      <section
-        id="radar"
-        style={{
-          position: 'relative',
-          width: '100%',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(3, 7, 12, 0.94)',
-          backdropFilter: 'blur(10px)',
-          padding: '60px 0',
-          boxSizing: 'border-box',
-        }}
-      >
-        <TacticalRadarSection />
-      </section>
-
-      {/* SECTION 6: CONTROLLING BLOCS & SCI-FI FOOTER */}
-      <section
-        id="blocs"
-        style={{
-          position: 'relative',
-          width: '100%',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          background: 'rgba(3, 7, 12, 0.95)',
-          backdropFilter: 'blur(10px)',
-          paddingTop: '60px',
-          boxSizing: 'border-box',
-        }}
-      >
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          <BlocsSection />
-        </div>
-        <SciFiFooter />
       </section>
 
       {/* Interactive Quantum Access Terminal Modal */}

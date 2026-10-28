@@ -318,20 +318,26 @@ export default function TimelineSection({
       {/*    DISSOLVES INTO EVENT IMAGE ON HOVER, FADES BACK ON LEAVE    */}
       {/* ============================================================== */}
       {/* ============================================================== */}
-      {/* 1. BORDERED HUD VIEWPORT (CONSTRAINS IMAGE, NOT EDGE-TO-EDGE)  */}
+      {/* 1. BORDERED HUD VIEWPORT (CONFINES ALL TIMELINE CONTENT)       */}
+      {/* Top line matches Menu Bar white line at 16px and runs behind   */}
       {/* ============================================================== */}
       <div
         style={{
           position: 'absolute',
-          top: 'clamp(48px, 6.8vh, 60px)',
-          bottom: 'clamp(14px, 2vh, 22px)',
-          left: 'clamp(18px, 2.5vw, 36px)',
-          right: 'clamp(18px, 2.5vw, 36px)',
-          border: '1px solid rgba(229, 162, 110, 0.35)',
+          top: '16px',
+          bottom: 'clamp(14px, 2vh, 20px)',
+          left: 'clamp(20px, 2.5vw, 36px)',
+          right: 'clamp(20px, 2.5vw, 36px)',
+          borderTop: '1px solid rgba(210, 235, 245, 0.45)',
+          borderLeft: '1px solid rgba(229, 162, 110, 0.35)',
+          borderRight: '1px solid rgba(229, 162, 110, 0.35)',
+          borderBottom: '1px solid rgba(229, 162, 110, 0.35)',
           borderRadius: '2px',
           overflow: 'hidden',
-          zIndex: 1,
-          pointerEvents: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          zIndex: 10,
           boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), inset 0 0 50px rgba(0, 0, 0, 0.85)',
           background: '#000000',
         }}
@@ -491,118 +497,45 @@ export default function TimelineSection({
           }}
         />
 
-        {/* Micro Tactical Telemetry Tags */}
+        {/* ============================================================== */}
+        {/* 2. TOP-LEFT HEADER BLOCK (SAFELY CONFINED INSIDE HUD BOX)       */}
+        {/* ============================================================== */}
         <div
           style={{
-            position: 'absolute',
-            top: '8px',
-            left: '12px',
-            fontFamily: "var(--font-mono), 'Share Tech Mono', monospace",
-            fontSize: '9px',
-            letterSpacing: '1.5px',
-            color: 'rgba(229, 162, 110, 0.7)',
-            zIndex: 5,
+            position: 'relative',
+            zIndex: 20,
+            paddingLeft: 'clamp(28px, 3.5vw, 48px)',
+            paddingTop: 'clamp(54px, 7vh, 76px)',
+            pointerEvents: 'auto',
           }}
         >
-          TIMELINE MATRIX // SECTOR 03
-        </div>
-        <div
-          style={{
-            position: 'absolute',
-            top: '8px',
-            right: '12px',
-            fontFamily: "var(--font-mono), 'Share Tech Mono', monospace",
-            fontSize: '9px',
-            letterSpacing: '1.5px',
-            color: 'rgba(215, 230, 245, 0.6)',
-            zIndex: 5,
-          }}
-        >
-          2018 — 2030 ARCHIVE
-        </div>
-      </div>
-
-      {/* ============================================================== */}
-      {/* 2. TOP-LEFT HEADER BLOCK (IMAGE 1: PROJECT NOOVERSE / TIMELINE) */}
-      {/* ============================================================== */}
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 20,
-          paddingLeft: 'clamp(32px, 4.5vw, 64px)',
-          marginTop: 'clamp(20px, 3vh, 32px)',
-          pointerEvents: 'auto',
-        }}
-      >
-        {/* 'PROJECT NOOVERSE' with Moon-O logo */}
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            fontFamily: "'Outfit', var(--font-logo), sans-serif",
-            fontSize: 'clamp(11px, 1.1vw, 13px)',
-            fontWeight: 300,
-            letterSpacing: 'clamp(6px, 0.8vw, 10px)',
-            color: 'rgba(235, 230, 224, 0.85)',
-            textTransform: 'uppercase',
-            marginBottom: '8px',
-          }}
-        >
-          <span style={{ marginRight: 'clamp(6px, 0.8vw, 10px)' }}>PROJECT</span>
-          <span style={{ marginRight: 'clamp(4px, 0.5vw, 7px)' }}>N</span>
-          <span style={{ marginRight: 'clamp(4px, 0.5vw, 7px)' }}>O</span>
-          <div
+          {/* 'T I M E L I N E' title */}
+          <h2
             style={{
-              position: 'relative',
-              width: '14px',
-              height: '14px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 'clamp(4px, 0.5vw, 7px)',
+              margin: 0,
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: 'clamp(28px, 3.2vw, 42px)',
+              fontWeight: 300,
+              letterSpacing: 'clamp(10px, 1.4vw, 18px)',
+              color: '#ffffff',
+              lineHeight: 1.1,
+              textTransform: 'uppercase',
             }}
           >
-            <svg viewBox="0 0 100 100" fill="none" style={{ width: '100%', height: '100%' }}>
-              <path d="M 50,6 A 44,44 0 0,1 50,94" stroke="#ffffff" strokeWidth="3" />
-              <path d="M 50,94 A 44,44 0 0,1 32,8" stroke="#ffffff" strokeWidth="3" />
-              <path d="M 32,8 C 18,20 16,40 22,54 C 26,64 36,80 50,94" stroke="rgba(255, 255, 255, 0.7)" strokeWidth="1.6" />
-              <circle cx="22" cy="54" r="5" fill="#ffffff" />
-            </svg>
-          </div>
-          <span style={{ marginRight: 'clamp(4px, 0.5vw, 7px)' }}>V</span>
-          <span style={{ marginRight: 'clamp(4px, 0.5vw, 7px)' }}>E</span>
-          <span style={{ marginRight: 'clamp(4px, 0.5vw, 7px)' }}>R</span>
-          <span style={{ marginRight: 'clamp(4px, 0.5vw, 7px)' }}>S</span>
-          <span>E</span>
+            TIMELINE
+          </h2>
+
+          {/* Small amber accent line underneath */}
+          <div
+            style={{
+              width: '42px',
+              height: '2px',
+              background: 'linear-gradient(to right, #e5a26e, rgba(229, 162, 110, 0.2))',
+              marginTop: '12px',
+              boxShadow: '0 0 6px rgba(229, 162, 110, 0.6)',
+            }}
+          />
         </div>
-
-        {/* 'T I M E L I N E' title */}
-        <h2
-          style={{
-            margin: 0,
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 'clamp(28px, 3.2vw, 42px)',
-            fontWeight: 300,
-            letterSpacing: 'clamp(10px, 1.4vw, 18px)',
-            color: '#ffffff',
-            lineHeight: 1.1,
-            textTransform: 'uppercase',
-          }}
-        >
-          TIMELINE
-        </h2>
-
-        {/* Small amber accent line underneath */}
-        <div
-          style={{
-            width: '42px',
-            height: '2px',
-            background: 'linear-gradient(to right, #e5a26e, rgba(229, 162, 110, 0.2))',
-            marginTop: '12px',
-            boxShadow: '0 0 6px rgba(229, 162, 110, 0.6)',
-          }}
-        />
-      </div>
 
       {/* ============================================================== */}
       {/* 3. CENTER HORIZONTAL TIMELINE TRACK (HORIZONTAL SCROLL CONTAINER) */}
@@ -1144,6 +1077,9 @@ export default function TimelineSection({
             }}
           />
         </div>
+      </div>
+
+      {/* End of Confined HUD Viewport Box */}
       </div>
 
       {/* ============================================================== */}
