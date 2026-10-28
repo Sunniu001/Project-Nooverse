@@ -27,12 +27,13 @@ export default function Home() {
   const [smoothedPos, setSmoothedPos] = useState({ x: 0, y: 0 });
   const [timelineEntryDir, setTimelineEntryDir] = useState<'from-prev' | 'from-next' | null>('from-prev');
 
+  const [isTimelineSettled, setIsTimelineSettled] = useState(false);
   const targetMouseRef = useRef({ x: 0, y: 0 });
   const currentMouseRef = useRef({ x: 0, y: 0 });
   const animFrameRef = useRef<number>(0);
   const isNavigatingRef = useRef(false);
 
-  // Navigate to target section smoothly using native browser scrolling
+  // Navigate to target section smoothly in ONE clean scroll
   const goToSection = useCallback((targetIndex: number) => {
     const clamped = Math.max(0, Math.min(targetIndex, TOTAL_SECTIONS - 1));
     const targetId = SECTION_IDS[clamped];
@@ -40,12 +41,20 @@ export default function Home() {
     if (targetEl) {
       isNavigatingRef.current = true;
       if (clamped === 3) {
+        setIsTimelineSettled(false);
         setTimelineEntryDir(targetIndex <= 3 ? 'from-prev' : 'from-next');
+      } else {
+        setIsTimelineSettled(false);
       }
+
       targetEl.scrollIntoView({ behavior: 'smooth' });
       setTimeout(() => {
         isNavigatingRef.current = false;
-      }, 850);
+        if (clamped === 3) {
+          // Settle the timeline in place before activating horizontal scroll
+          setIsTimelineSettled(true);
+        }
+      }, 750);
     }
     setActiveSection(clamped);
     setActiveTab(NAV_TABS[clamped] || '');
@@ -78,7 +87,64 @@ export default function Home() {
     };
   }, []);
 
-  // 2. NATURAL SCROLL DETECTOR
+  // 2. ONE-SCROLL SLIDE WHEEL COORDINATOR (BEFORE -> TIMELINE -> ARCHIVES)
+  useEffect(() => {
+    let lastWheelTime = 0;
+
+    const handleWindowWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) return;
+      if (isNavigatingRef.current) {
+        e.preventDefault();
+        return;
+      }
+
+      const now = Date.now();
+      const delta = e.deltaY;
+
+      // On full-screen slides 0, 1, 2 (Hero, Origin, Before):
+      if (activeSection <= 2) {
+        if (Math.abs(delta) < 18) return;
+        if (now - lastWheelTime < 750) {
+          e.preventDefault();
+          return;
+        }
+
+        if (delta > 0) {
+          // One scroll down into next slide (e.g. from Before directly into Timeline!)
+          e.preventDefault();
+          lastWheelTime = now;
+          goToSection(activeSection + 1);
+        } else if (delta < 0 && activeSection > 0) {
+          // One scroll up into previous slide
+          e.preventDefault();
+          lastWheelTime = now;
+          goToSection(activeSection - 1);
+        }
+      }
+
+      // When at the top of Archives (Section 4) and scrolling UP:
+      else if (activeSection === 4) {
+        const archivesEl = document.getElementById('archives');
+        if (archivesEl && window.scrollY <= archivesEl.offsetTop + 20 && delta < -25) {
+          if (now - lastWheelTime < 750) {
+            e.preventDefault();
+            return;
+          }
+          // In one scroll, glide up to Timeline!
+          e.preventDefault();
+          lastWheelTime = now;
+          goToSection(3);
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWindowWheel, { passive: false });
+    return () => {
+      window.removeEventListener('wheel', handleWindowWheel);
+    };
+  }, [activeSection, goToSection]);
+
+  // 3. NATURAL SCROLL DETECTOR
   // Automatically detects which section is currently in view and updates activeSection / activeTab
   useEffect(() => {
     const handleScroll = () => {
@@ -94,13 +160,17 @@ export default function Home() {
         }
       }
 
-      // If user naturally scrolls into the Timeline section, cleanly snap and lock into view
+      // If user naturally reaches the Timeline section, ensure it settles cleanly
       if (!isNavigatingRef.current && currentIdx === 3 && activeSection !== 3) {
+        setIsTimelineSettled(false);
         const timelineEl = document.getElementById('timeline');
         if (timelineEl) {
           const dir = activeSection < 3 ? 'from-prev' : 'from-next';
           setTimelineEntryDir(dir);
-          window.scrollTo({ top: timelineEl.offsetTop, behavior: 'instant' });
+          timelineEl.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            setIsTimelineSettled(true);
+          }, 750);
         }
       }
 
@@ -267,6 +337,7 @@ export default function Home() {
       >
         <TimelineSection
           isActive={activeSection === 3}
+          isSettled={isTimelineSettled}
           entryDirection={timelineEntryDir}
           onHorizontalBoundary={(dir) => {
             goToSection(dir === 'next' ? 4 : 2);

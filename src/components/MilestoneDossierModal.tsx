@@ -879,17 +879,18 @@ export default function MilestoneDossierModal({
             <div
               className="dossier-text-scroll"
               style={{
-                maxHeight: 'clamp(200px, 28vh, 280px)',
+                maxHeight: 'clamp(210px, 30vh, 300px)',
                 overflowY: 'auto',
-                paddingRight: '12px',
+                paddingRight: '14px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: '14px',
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 'clamp(12px, 1.05vw, 13px)',
-                fontWeight: 300,
-                lineHeight: 1.65,
-                color: 'rgba(215, 225, 235, 0.82)',
+                fontSize: 'clamp(14px, 1.25vw, 15.5px)',
+                fontWeight: 400,
+                lineHeight: 1.72,
+                color: 'rgba(242, 247, 252, 0.96)',
+                letterSpacing: '0.25px',
                 userSelect: 'text',
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#e5a26e rgba(226, 157, 104, 0.1)',
@@ -907,8 +908,8 @@ export default function MilestoneDossierModal({
           <div
             style={{
               marginTop: '16px',
-              padding: '12px 16px',
-              background: 'rgba(10, 15, 22, 0.65)',
+              padding: '14px 18px',
+              background: 'rgba(10, 15, 22, 0.75)',
               border: '1px solid rgba(226, 157, 104, 0.45)',
               borderRadius: '2px',
               position: 'relative',
@@ -946,10 +947,11 @@ export default function MilestoneDossierModal({
             <div>
               <div
                 style={{
-                  fontSize: '9px',
-                  color: 'rgba(185, 205, 225, 0.6)',
-                  letterSpacing: '1.5px',
-                  marginBottom: '4px',
+                  fontSize: '10.5px',
+                  color: '#e5a26e',
+                  letterSpacing: '2px',
+                  fontWeight: 600,
+                  marginBottom: '6px',
                 }}
               >
                 LOCATION
@@ -958,10 +960,11 @@ export default function MilestoneDossierModal({
                 <div
                   key={i}
                   style={{
-                    fontSize: '11px',
+                    fontSize: '13px',
+                    fontWeight: 500,
                     color: '#ffffff',
-                    letterSpacing: '0.8px',
-                    lineHeight: 1.3,
+                    letterSpacing: '0.9px',
+                    lineHeight: 1.4,
                   }}
                 >
                   {loc}
@@ -973,20 +976,22 @@ export default function MilestoneDossierModal({
             <div>
               <div
                 style={{
-                  fontSize: '9px',
-                  color: 'rgba(185, 205, 225, 0.6)',
-                  letterSpacing: '1.5px',
-                  marginBottom: '4px',
+                  fontSize: '10.5px',
+                  color: '#e5a26e',
+                  letterSpacing: '2px',
+                  fontWeight: 600,
+                  marginBottom: '6px',
                 }}
               >
                 PERIOD
               </div>
               <div
                 style={{
-                  fontSize: '11px',
+                  fontSize: '13px',
+                  fontWeight: 500,
                   color: '#ffffff',
-                  letterSpacing: '0.8px',
-                  lineHeight: 1.3,
+                  letterSpacing: '0.9px',
+                  lineHeight: 1.4,
                 }}
               >
                 {data.period}

@@ -74,12 +74,14 @@ const MILESTONES: TimelineMilestone[] = [
 
 interface TimelineSectionProps {
   isActive?: boolean;
+  isSettled?: boolean;
   onHorizontalBoundary?: (direction: 'prev' | 'next') => void;
   entryDirection?: 'from-prev' | 'from-next' | null;
 }
 
 export default function TimelineSection({
   isActive = false,
+  isSettled = false,
   onHorizontalBoundary,
   entryDirection,
 }: TimelineSectionProps) {
@@ -102,15 +104,20 @@ export default function TimelineSection({
     if (!el) return;
 
     const maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 0) return;
+    if (maxScroll <= 0) {
+      setScrollProgress(0);
+      setActiveIndex(0);
+      return;
+    }
 
     const current = el.scrollLeft;
     targetScrollRef.current = current;
     const progress = Math.min(Math.max(current / maxScroll, 0), 1);
     setScrollProgress(progress);
 
+    // Compute active milestone corresponding to current scroll level
     const index = Math.min(
-      Math.floor(progress * MILESTONES.length),
+      Math.max(Math.round(progress * (MILESTONES.length - 1)), 0),
       MILESTONES.length - 1
     );
     setActiveIndex(index);
@@ -164,9 +171,14 @@ export default function TimelineSection({
   //    we smoothly unlock and proceed to the next section ('archives').
   // 4. Similarly when scrolling back up to the beginning, only then proceed to previous section ('before').
   useEffect(() => {
-    const container = containerRef.current;
     const track = trackRef.current;
-    if (!container || !track) return;
+    if (!track) return;
+
+    // Only lock vertical scrolling and handle horizontal wheel traversal
+    // when the timeline section is both active AND fully settled in full viewport!
+    if (!isActive || !isSettled) {
+      return;
+    }
 
     const handleWheel = (e: WheelEvent) => {
       // Don't intercept if pinch-zooming
@@ -199,12 +211,12 @@ export default function TimelineSection({
           track.scrollLeft = targetScrollRef.current;
           updateMetrics();
         } else {
-          // At the end of the events (COVID-29)!
+          // At the end of the events (THE NOOSPHERE HYPOTHESIS)!
           // All horizontal scrolls are completed.
           // Require deliberate further scroll intent before transitioning to next section
           e.preventDefault();
           overscrollRef.current += delta;
-          if (overscrollRef.current >= 120) {
+          if (overscrollRef.current >= 90) {
             isTransitioningRef.current = true;
             onHorizontalBoundary?.('next');
             setTimeout(() => {
@@ -230,7 +242,7 @@ export default function TimelineSection({
           // Require deliberate further scroll intent before transitioning to previous section
           e.preventDefault();
           overscrollRef.current += Math.abs(delta);
-          if (overscrollRef.current >= 120) {
+          if (overscrollRef.current >= 90) {
             isTransitioningRef.current = true;
             onHorizontalBoundary?.('prev');
             setTimeout(() => {
@@ -242,20 +254,14 @@ export default function TimelineSection({
       }
     };
 
-    // Attach to window when isActive is true (so scroll is locked even if cursor isn't directly over cards)
-    // AND attach to container for direct mouse wheel interaction
-    if (isActive) {
-      window.addEventListener('wheel', handleWheel, { passive: false });
-    } else {
-      container.addEventListener('wheel', handleWheel, { passive: false });
-    }
+    window.addEventListener('wheel', handleWheel, { passive: false });
 
     const onScroll = () => updateMetrics();
     track.addEventListener('scroll', onScroll, { passive: true });
     updateMetrics();
 
     const handleKey = (e: KeyboardEvent) => {
-      if (!isActive || activeDossier) return;
+      if (!isActive || !isSettled || activeDossier) return;
       const maxScroll = track.scrollWidth - track.clientWidth;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
         if (track.scrollLeft < maxScroll - 10) {
@@ -281,11 +287,10 @@ export default function TimelineSection({
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
-      container.removeEventListener('wheel', handleWheel);
       track.removeEventListener('scroll', onScroll);
       window.removeEventListener('keydown', handleKey);
     };
-  }, [isActive, activeDossier, updateMetrics, onHorizontalBoundary]);
+  }, [isActive, isSettled, activeDossier, updateMetrics, onHorizontalBoundary]);
 
   const activeMilestone = MILESTONES[activeIndex] || MILESTONES[0];
   const hoveredMilestone = hoveredId ? MILESTONES.find((m) => m.id === hoveredId) || null : null;
@@ -312,59 +317,210 @@ export default function TimelineSection({
       {/* 1. CINEMATIC BACKGROUND: PURE BLACK BY DEFAULT,                */}
       {/*    DISSOLVES INTO EVENT IMAGE ON HOVER, FADES BACK ON LEAVE    */}
       {/* ============================================================== */}
+      {/* ============================================================== */}
+      {/* 1. BORDERED HUD VIEWPORT (CONSTRAINS IMAGE, NOT EDGE-TO-EDGE)  */}
+      {/* ============================================================== */}
       <div
         style={{
           position: 'absolute',
-          inset: 0,
-          backgroundColor: '#000000',
-          zIndex: 0,
-        }}
-      />
-
-      {/* Dynamic Event Background Image Layer */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: hoveredBgImage ? `url(${hoveredBgImage})` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 40%',
-          filter: 'brightness(0.88) contrast(1.1)',
-          opacity: hoveredId ? 1 : 0,
-          transform: hoveredId ? 'scale(1.03)' : 'scale(1)',
-          transition: 'opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s ease-out',
+          top: 'clamp(48px, 6.8vh, 60px)',
+          bottom: 'clamp(14px, 2vh, 22px)',
+          left: 'clamp(18px, 2.5vw, 36px)',
+          right: 'clamp(18px, 2.5vw, 36px)',
+          border: '1px solid rgba(229, 162, 110, 0.35)',
+          borderRadius: '2px',
+          overflow: 'hidden',
           zIndex: 1,
           pointerEvents: 'none',
+          boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), inset 0 0 50px rgba(0, 0, 0, 0.85)',
+          background: '#000000',
         }}
-      />
+      >
+        {/* Dynamic Event Background Image Layers (Inside Bordered HUD Frame) */}
+        {MILESTONES.map((m, i) => {
+          const isHovered = hoveredId === m.id;
+          const isScrollActive = !hoveredId && activeIndex === i;
 
-      {/* Atmospheric dark vignette overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.82) 85%, #000000 100%)',
-          zIndex: 2,
-          pointerEvents: 'none',
-          opacity: hoveredId ? 1 : 0,
-          transition: 'opacity 0.65s ease',
-        }}
-      />
+          let opacity = 0;
+          let scale = 1;
+          let filter = 'blur(10px) brightness(0.85) contrast(1.08)';
 
-      {/* Subtle scanline texture */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.25) 3px, rgba(0, 0, 0, 0.25) 4px)',
-          zIndex: 3,
-          pointerEvents: 'none',
-          opacity: hoveredId ? 0.6 : 0.2,
-          transition: 'opacity 0.65s ease',
-        }}
-      />
+          if (isHovered) {
+            opacity = 1;
+            scale = 1.03;
+            // Fully un-blurred, sharp and crystal clear on hover!
+            filter = 'blur(0px) brightness(1.0) contrast(1.1)';
+          } else if (isScrollActive) {
+            // Blurred on non-hover state as requested!
+            opacity = 0.82;
+            scale = 1.0;
+            filter = 'blur(10px) brightness(0.88) contrast(1.1)';
+          }
+
+          return (
+            <div
+              key={m.id}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${m.bgImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center 40%',
+                filter,
+                opacity,
+                transform: `scale(${scale})`,
+                transition:
+                  'opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s ease-out, filter 0.6s ease',
+                zIndex: isHovered ? 2 : 1,
+                pointerEvents: 'none',
+              }}
+            />
+          );
+        })}
+
+        {/* Top Vignette Layer (Inside HUD Frame) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '38%',
+            background:
+              'linear-gradient(to bottom, #000000 0%, rgba(0, 0, 0, 0.85) 35%, rgba(0, 0, 0, 0.4) 70%, transparent 100%)',
+            zIndex: 3,
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Bottom Vignette Layer (Inside HUD Frame) */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '40%',
+            background:
+              'linear-gradient(to top, #000000 0%, rgba(0, 0, 0, 0.88) 35%, rgba(0, 0, 0, 0.45) 72%, transparent 100%)',
+            zIndex: 3,
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Left & Right Edge Vignette */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.35) 6%, transparent 16%, transparent 84%, rgba(0, 0, 0, 0.35) 94%, rgba(0, 0, 0, 0.8) 100%)',
+            zIndex: 3,
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Subtle scanline texture */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.15) 3px, rgba(0, 0, 0, 0.15) 4px)',
+            zIndex: 4,
+            pointerEvents: 'none',
+            opacity: 0.22,
+          }}
+        />
+
+        {/* Tactical Outer Corner L-Brackets in glowing Amber */}
+        {/* Top-Left */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-2px',
+            left: '-2px',
+            width: '18px',
+            height: '18px',
+            borderTop: '2.5px solid #ff9e3b',
+            borderLeft: '2.5px solid #ff9e3b',
+            zIndex: 5,
+            filter: 'drop-shadow(0 0 4px #ff9e3b)',
+          }}
+        />
+        {/* Top-Right */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-2px',
+            right: '-2px',
+            width: '18px',
+            height: '18px',
+            borderTop: '2.5px solid #ff9e3b',
+            borderRight: '2.5px solid #ff9e3b',
+            zIndex: 5,
+            filter: 'drop-shadow(0 0 4px #ff9e3b)',
+          }}
+        />
+        {/* Bottom-Left */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-2px',
+            left: '-2px',
+            width: '18px',
+            height: '18px',
+            borderBottom: '2.5px solid #ff9e3b',
+            borderLeft: '2.5px solid #ff9e3b',
+            zIndex: 5,
+            filter: 'drop-shadow(0 0 4px #ff9e3b)',
+          }}
+        />
+        {/* Bottom-Right */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-2px',
+            right: '-2px',
+            width: '18px',
+            height: '18px',
+            borderBottom: '2.5px solid #ff9e3b',
+            borderRight: '2.5px solid #ff9e3b',
+            zIndex: 5,
+            filter: 'drop-shadow(0 0 4px #ff9e3b)',
+          }}
+        />
+
+        {/* Micro Tactical Telemetry Tags */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '8px',
+            left: '12px',
+            fontFamily: "var(--font-mono), 'Share Tech Mono', monospace",
+            fontSize: '9px',
+            letterSpacing: '1.5px',
+            color: 'rgba(229, 162, 110, 0.7)',
+            zIndex: 5,
+          }}
+        >
+          TIMELINE MATRIX // SECTOR 03
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '12px',
+            fontFamily: "var(--font-mono), 'Share Tech Mono', monospace",
+            fontSize: '9px',
+            letterSpacing: '1.5px',
+            color: 'rgba(215, 230, 245, 0.6)',
+            zIndex: 5,
+          }}
+        >
+          2018 — 2030 ARCHIVE
+        </div>
+      </div>
 
       {/* ============================================================== */}
       {/* 2. TOP-LEFT HEADER BLOCK (IMAGE 1: PROJECT NOOVERSE / TIMELINE) */}
@@ -588,6 +744,7 @@ export default function TimelineSection({
           {MILESTONES.map((item, idx) => {
             const isHovered = hoveredId === item.id;
             const isAnyHovered = hoveredId !== null;
+            const isScrollFocused = !isAnyHovered && idx === activeIndex;
             const isGroupGap = idx === 1;
             const isLast = idx === MILESTONES.length - 1;
             const marginRight = isLast
@@ -618,20 +775,22 @@ export default function TimelineSection({
                   cursor: DOSSIER_DATA[item.id] ? 'pointer' : 'default',
                   transform: isHovered
                     ? 'scale(1.12) translateY(-6px)'
+                    : isScrollFocused
+                    ? 'scale(1.04) translateY(-3px)'
                     : isAnyHovered
                     ? 'scale(0.95)'
                     : 'scale(1)',
                   opacity: isHovered
                     ? 1
+                    : isScrollFocused
+                    ? 1
                     : isAnyHovered
                     ? 0.38
-                    : Math.abs(idx - activeIndex) <= 1
-                    ? 1
-                    : 0.72,
+                    : 0.68,
                   filter: isAnyHovered && !isHovered ? 'blur(0.5px)' : 'none',
                   transition:
                     'transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, filter 0.35s ease',
-                  zIndex: isHovered ? 30 : 10,
+                  zIndex: isHovered ? 30 : isScrollFocused ? 20 : 10,
                 }}
               >
                 {/* 1. BRACKET BOX (EXACT MATCH TO REFERENCE IMAGE) */}
@@ -645,10 +804,14 @@ export default function TimelineSection({
                     justifyContent: 'center',
                     background: isHovered
                       ? 'rgba(14, 22, 32, 0.94)'
-                      : 'rgba(7, 11, 16, 0.82)',
+                      : isScrollFocused
+                      ? 'rgba(12, 18, 26, 0.88)'
+                      : 'rgba(7, 11, 16, 0.78)',
                     backdropFilter: 'blur(8px)',
                     boxShadow: isHovered
                       ? '0 0 32px rgba(229, 162, 110, 0.65), inset 0 0 15px rgba(229, 162, 110, 0.22)'
+                      : isScrollFocused
+                      ? '0 0 22px rgba(229, 162, 110, 0.45), inset 0 0 12px rgba(229, 162, 110, 0.16)'
                       : '0 4px 18px rgba(0, 0, 0, 0.7)',
                     transition: 'all 0.3s ease',
                   }}
@@ -664,10 +827,12 @@ export default function TimelineSection({
                       fontSize: '12.5px',
                       fontWeight: 600,
                       letterSpacing: '5px',
-                      color: isHovered ? '#ffc896' : '#e5a26e',
+                      color: isHovered ? '#ffc896' : isScrollFocused ? '#ffbe82' : '#e5a26e',
                       textShadow: isHovered
                         ? '0 0 14px rgba(255, 195, 140, 0.95)'
-                        : '0 0 10px rgba(229, 162, 110, 0.75)',
+                        : isScrollFocused
+                        ? '0 0 10px rgba(229, 162, 110, 0.85)'
+                        : '0 0 7px rgba(229, 162, 110, 0.6)',
                       userSelect: 'none',
                       transition: 'color 0.3s ease, text-shadow 0.3s ease',
                     }}
@@ -682,13 +847,15 @@ export default function TimelineSection({
                       position: 'absolute',
                       top: 0,
                       left: 0,
-                      width: isHovered ? '16px' : '14px',
-                      height: isHovered ? '16px' : '14px',
-                      borderTop: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
-                      borderLeft: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
+                      width: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      height: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      borderTop: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
+                      borderLeft: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
                       boxShadow: isHovered
                         ? '0 0 14px rgba(229, 162, 110, 1), 0 0 24px rgba(229, 162, 110, 0.5)'
-                        : '0 0 6px rgba(229, 162, 110, 0.6)',
+                        : isScrollFocused
+                        ? '0 0 10px rgba(229, 162, 110, 0.85)'
+                        : '0 0 5px rgba(229, 162, 110, 0.45)',
                       transition: 'all 0.3s ease',
                     }}
                   />
@@ -698,13 +865,15 @@ export default function TimelineSection({
                       position: 'absolute',
                       top: 0,
                       right: 0,
-                      width: isHovered ? '16px' : '14px',
-                      height: isHovered ? '16px' : '14px',
-                      borderTop: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
-                      borderRight: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
+                      width: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      height: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      borderTop: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
+                      borderRight: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
                       boxShadow: isHovered
                         ? '0 0 14px rgba(229, 162, 110, 1), 0 0 24px rgba(229, 162, 110, 0.5)'
-                        : '0 0 6px rgba(229, 162, 110, 0.6)',
+                        : isScrollFocused
+                        ? '0 0 10px rgba(229, 162, 110, 0.85)'
+                        : '0 0 5px rgba(229, 162, 110, 0.45)',
                       transition: 'all 0.3s ease',
                     }}
                   />
@@ -714,13 +883,15 @@ export default function TimelineSection({
                       position: 'absolute',
                       bottom: 0,
                       left: 0,
-                      width: isHovered ? '16px' : '14px',
-                      height: isHovered ? '16px' : '14px',
-                      borderBottom: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
-                      borderLeft: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
+                      width: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      height: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      borderBottom: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
+                      borderLeft: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
                       boxShadow: isHovered
                         ? '0 0 14px rgba(229, 162, 110, 1), 0 0 24px rgba(229, 162, 110, 0.5)'
-                        : '0 0 6px rgba(229, 162, 110, 0.6)',
+                        : isScrollFocused
+                        ? '0 0 10px rgba(229, 162, 110, 0.85)'
+                        : '0 0 5px rgba(229, 162, 110, 0.45)',
                       transition: 'all 0.3s ease',
                     }}
                   />
@@ -730,13 +901,15 @@ export default function TimelineSection({
                       position: 'absolute',
                       bottom: 0,
                       right: 0,
-                      width: isHovered ? '16px' : '14px',
-                      height: isHovered ? '16px' : '14px',
-                      borderBottom: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
-                      borderRight: `${isHovered ? '3.5px' : '3px'} solid #e5a26e`,
+                      width: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      height: isHovered ? '16px' : isScrollFocused ? '15px' : '14px',
+                      borderBottom: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
+                      borderRight: `${isHovered ? '3.5px' : isScrollFocused ? '3px' : '2.5px'} solid #e5a26e`,
                       boxShadow: isHovered
                         ? '0 0 14px rgba(229, 162, 110, 1), 0 0 24px rgba(229, 162, 110, 0.5)'
-                        : '0 0 6px rgba(229, 162, 110, 0.6)',
+                        : isScrollFocused
+                        ? '0 0 10px rgba(229, 162, 110, 0.85)'
+                        : '0 0 5px rgba(229, 162, 110, 0.45)',
                       transition: 'all 0.3s ease',
                     }}
                   />
@@ -750,7 +923,9 @@ export default function TimelineSection({
                       right: 'calc(50% + 9px)',
                       height: '1.5px',
                       background: '#e5a26e',
-                      boxShadow: '0 0 4px rgba(229, 162, 110, 0.5)',
+                      boxShadow: isScrollFocused
+                        ? '0 0 6px rgba(229, 162, 110, 0.7)'
+                        : '0 0 4px rgba(229, 162, 110, 0.5)',
                     }}
                   />
                   {/* Bottom border line from center node to right bracket */}
@@ -762,7 +937,9 @@ export default function TimelineSection({
                       right: '12px',
                       height: '1.5px',
                       background: '#e5a26e',
-                      boxShadow: '0 0 4px rgba(229, 162, 110, 0.5)',
+                      boxShadow: isScrollFocused
+                        ? '0 0 6px rgba(229, 162, 110, 0.7)'
+                        : '0 0 4px rgba(229, 162, 110, 0.5)',
                     }}
                   />
 
@@ -773,8 +950,8 @@ export default function TimelineSection({
                       bottom: 0,
                       left: '50%',
                       transform: 'translate(-50%, 50%)',
-                      width: isHovered ? '20px' : '18px',
-                      height: isHovered ? '20px' : '18px',
+                      width: isHovered ? '20px' : isScrollFocused ? '19px' : '18px',
+                      height: isHovered ? '20px' : isScrollFocused ? '19px' : '18px',
                       borderRadius: '50%',
                       border: '1.5px solid #e5a26e',
                       background: 'rgba(7, 11, 16, 0.95)',
@@ -783,7 +960,9 @@ export default function TimelineSection({
                       justifyContent: 'center',
                       boxShadow: isHovered
                         ? '0 0 14px #e5a26e, 0 0 25px rgba(229, 162, 110, 0.8)'
-                        : '0 0 8px rgba(229, 162, 110, 0.8)',
+                        : isScrollFocused
+                        ? '0 0 12px rgba(229, 162, 110, 0.9), 0 0 20px rgba(229, 162, 110, 0.4)'
+                        : '0 0 7px rgba(229, 162, 110, 0.65)',
                       zIndex: 5,
                       transition: 'all 0.3s ease',
                     }}
@@ -791,11 +970,19 @@ export default function TimelineSection({
                     {/* Inner glowing amber core */}
                     <div
                       style={{
-                        width: isHovered ? '11px' : '10px',
-                        height: isHovered ? '11px' : '10px',
+                        width: isHovered ? '11px' : isScrollFocused ? '10.5px' : '10px',
+                        height: isHovered ? '11px' : isScrollFocused ? '10.5px' : '10px',
                         borderRadius: '50%',
-                        background: isHovered ? '#fff4e6' : '#e5a26e',
-                        boxShadow: isHovered ? '0 0 10px #ffffff' : '0 0 8px #e5a26e',
+                        background: isHovered
+                          ? '#fff4e6'
+                          : isScrollFocused
+                          ? '#ffe8d1'
+                          : '#e5a26e',
+                        boxShadow: isHovered
+                          ? '0 0 10px #ffffff'
+                          : isScrollFocused
+                          ? '0 0 8px #ffbe82'
+                          : '0 0 6px #e5a26e',
                         transition: 'all 0.3s ease',
                       }}
                     />
@@ -806,13 +993,15 @@ export default function TimelineSection({
                     style={{
                       fontFamily: "'Outfit', sans-serif",
                       fontSize: 'clamp(12px, 1.25vw, 14.5px)',
-                      fontWeight: isHovered ? 600 : 500,
+                      fontWeight: isHovered ? 600 : isScrollFocused ? 600 : 500,
                       letterSpacing: '3.5px',
-                      color: isHovered ? '#ffffff' : '#e5a26e',
+                      color: isHovered ? '#ffffff' : isScrollFocused ? '#fff5eb' : '#e5a26e',
                       textTransform: 'uppercase',
                       textAlign: 'center',
                       textShadow: isHovered
                         ? '0 0 16px rgba(255, 215, 175, 1), 0 0 30px rgba(229, 162, 110, 0.7)'
+                        : isScrollFocused
+                        ? '0 0 12px rgba(255, 205, 160, 0.8), 0 0 22px rgba(229, 162, 110, 0.5)'
                         : '0 0 6px rgba(229, 162, 110, 0.35)',
                       userSelect: 'none',
                       transition: 'all 0.3s ease',
@@ -832,7 +1021,7 @@ export default function TimelineSection({
                     display: 'flex',
                     alignItems: 'stretch',
                     gap: '12px',
-                    opacity: isHovered ? 1 : 0.85,
+                    opacity: isHovered ? 1 : isScrollFocused ? 1 : 0.75,
                     transition: 'opacity 0.3s ease',
                   }}
                 >
@@ -840,10 +1029,16 @@ export default function TimelineSection({
                   <div
                     style={{
                       width: '1.2px',
-                      background: isHovered ? '#e5a26e' : 'rgba(229, 162, 110, 0.75)',
+                      background: isHovered
+                        ? '#e5a26e'
+                        : isScrollFocused
+                        ? '#e5a26e'
+                        : 'rgba(229, 162, 110, 0.7)',
                       boxShadow: isHovered
                         ? '0 0 8px rgba(229, 162, 110, 0.9)'
-                        : '0 0 4px rgba(229, 162, 110, 0.45)',
+                        : isScrollFocused
+                        ? '0 0 6px rgba(229, 162, 110, 0.7)'
+                        : '0 0 4px rgba(229, 162, 110, 0.35)',
                       flexShrink: 0,
                       transition: 'all 0.3s ease',
                     }}
@@ -854,12 +1049,17 @@ export default function TimelineSection({
                     style={{
                       margin: 0,
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 'clamp(11px, 1.05vw, 12.5px)',
-                      fontWeight: 300,
-                      lineHeight: 1.55,
-                      color: isHovered ? 'rgba(240, 245, 252, 0.95)' : 'rgba(215, 222, 230, 0.75)',
+                      fontSize: 'clamp(12px, 1.15vw, 13px)',
+                      fontWeight: 400,
+                      lineHeight: 1.6,
+                      color: isHovered
+                        ? '#ffffff'
+                        : isScrollFocused
+                        ? 'rgba(245, 248, 255, 0.96)'
+                        : 'rgba(225, 232, 240, 0.75)',
                       textAlign: 'left',
-                      letterSpacing: '0.2px',
+                      letterSpacing: '0.25px',
+                      textShadow: '0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9)',
                       userSelect: 'text',
                       transition: 'color 0.3s ease',
                     }}
