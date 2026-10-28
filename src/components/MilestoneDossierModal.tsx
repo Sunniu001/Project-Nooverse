@@ -403,29 +403,135 @@ export default function MilestoneDossierModal({
         {/* ============================================================== */}
         {/* LEFT COLUMN: MAIN FEATURED IMAGE & 3 THUMBNAILS                */}
         {/* ============================================================== */}
+        {/* ============================================================== */}
+        {/* LEFT COLUMN: TACTICAL HUD SLIDER FRAME (MAIN + THUMBNAILS)     */}
+        {/* ============================================================== */}
         <div
           style={{
             flex: '1 1 52%',
             maxWidth: '560px',
+            position: 'relative',
+            padding: '12px',
+            background: 'rgba(5, 8, 12, 0.65)',
+            border: '1px solid rgba(229, 162, 110, 0.32)',
+            borderRadius: '2px',
             display: 'flex',
             flexDirection: 'column',
             gap: '12px',
+            boxShadow: 'inset 0 0 30px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.7)',
           }}
         >
-          {/* Main Visual Display */}
+          {/* Outer Frame Top-Left Tactical Corner Bracket (Double Notch) */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-3px',
+              left: '-3px',
+              width: '18px',
+              height: '18px',
+              borderTop: '2.5px solid #ff9e3b',
+              borderLeft: '2.5px solid #ff9e3b',
+              pointerEvents: 'none',
+              filter: 'drop-shadow(0 0 4px #ff9e3b)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '3px',
+              left: '3px',
+              width: '8px',
+              height: '8px',
+              borderTop: '1px solid rgba(255, 158, 59, 0.6)',
+              borderLeft: '1px solid rgba(255, 158, 59, 0.6)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Outer Frame Bottom-Left Tactical Corner Bracket (Double Notch) */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '-3px',
+              left: '-3px',
+              width: '18px',
+              height: '18px',
+              borderBottom: '2.5px solid #ff9e3b',
+              borderLeft: '2.5px solid #ff9e3b',
+              pointerEvents: 'none',
+              filter: 'drop-shadow(0 0 4px #ff9e3b)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '3px',
+              left: '3px',
+              width: '8px',
+              height: '8px',
+              borderBottom: '1px solid rgba(255, 158, 59, 0.6)',
+              borderLeft: '1px solid rgba(255, 158, 59, 0.6)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Outer Frame Top-Right Corner Bracket */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-3px',
+              right: '-3px',
+              width: '14px',
+              height: '14px',
+              borderTop: '1.5px solid rgba(229, 162, 110, 0.65)',
+              borderRight: '1.5px solid rgba(229, 162, 110, 0.65)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Outer Frame Bottom-Right Corner Bracket */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '-3px',
+              right: '-3px',
+              width: '14px',
+              height: '14px',
+              borderBottom: '1.5px solid rgba(229, 162, 110, 0.65)',
+              borderRight: '1.5px solid rgba(229, 162, 110, 0.65)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Outer Frame Right Edge HUD Diamond Accent */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              right: '-3px',
+              width: '5px',
+              height: '5px',
+              background: '#ff9e3b',
+              boxShadow: '0 0 6px #ff9e3b',
+              transform: 'translateY(-50%) rotate(45deg)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Main Visual Display Inside Frame */}
           <div
             style={{
               position: 'relative',
               width: '100%',
-              height: 'clamp(280px, 36vh, 360px)',
-              borderRadius: '2px',
+              height: 'clamp(270px, 34vh, 350px)',
+              borderRadius: '1px',
               overflow: 'hidden',
-              border: '1.2px solid rgba(226, 157, 104, 0.45)',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.8)',
+              border: '1px solid rgba(229, 162, 110, 0.45)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.85)',
               background: '#04070a',
             }}
           >
-            {/* Background image */}
+            {/* Background Image */}
             <div
               style={{
                 position: 'absolute',
@@ -437,20 +543,56 @@ export default function MilestoneDossierModal({
               }}
             />
 
-            {/* Subtle dark gradient overlay */}
+            {/* Subtle Vignette Gradient Overlay */}
             <div
               style={{
                 position: 'absolute',
                 inset: 0,
                 background:
-                  'linear-gradient(to bottom, rgba(4, 7, 10, 0.4) 0%, transparent 40%, rgba(4, 7, 10, 0.6) 100%)',
+                  'linear-gradient(to bottom, rgba(4, 7, 10, 0.25) 0%, transparent 45%, rgba(4, 7, 10, 0.7) 100%)',
                 pointerEvents: 'none',
               }}
             />
 
+            {/* Main Image Inner Corner Bracket Accents */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '6px',
+                left: '6px',
+                width: '12px',
+                height: '12px',
+                borderTop: '1.5px solid #ff9e3b',
+                borderLeft: '1.5px solid #ff9e3b',
+                pointerEvents: 'none',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '6px',
+                right: '6px',
+                width: '10px',
+                height: '10px',
+                borderTop: '1px solid rgba(229, 162, 110, 0.5)',
+                borderRight: '1px solid rgba(229, 162, 110, 0.5)',
+                pointerEvents: 'none',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '6px',
+                right: '6px',
+                width: '10px',
+                height: '10px',
+                borderBottom: '1px solid rgba(229, 162, 110, 0.5)',
+                borderRight: '1px solid rgba(229, 162, 110, 0.5)',
+                pointerEvents: 'none',
+              }}
+            />
 
-
-            {/* Bottom-Left Micro Segmented Slider Indicator */}
+            {/* Bottom-Left Segmented Indicator Capsules (matches reference screenshot) */}
             <div
               style={{
                 position: 'absolute',
@@ -458,57 +600,45 @@ export default function MilestoneDossierModal({
                 left: '12px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
-                pointerEvents: 'none',
+                gap: '5px',
+                background: 'rgba(0, 0, 0, 0.45)',
+                padding: '3px 6px',
+                borderRadius: '2px',
+                backdropFilter: 'blur(4px)',
+                border: '1px solid rgba(229, 162, 110, 0.2)',
               }}
             >
-              {data.images.map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: i === selectedImageIndex ? '16px' : '9px',
-                    height: '3px',
-                    borderRadius: '1px',
-                    background: i === selectedImageIndex ? '#e5a26e' : 'rgba(255, 255, 255, 0.25)',
-                    boxShadow: i === selectedImageIndex ? '0 0 6px #e5a26e' : 'none',
-                    transition: 'all 0.25s ease',
-                  }}
-                />
-              ))}
+              {data.images.map((_, i) => {
+                const isActive = i === selectedImageIndex;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImageIndex(i)}
+                    style={{
+                      width: isActive ? '20px' : '15px',
+                      height: '5px',
+                      borderRadius: '1px',
+                      background: isActive ? '#ff9e3b' : 'transparent',
+                      border: isActive
+                        ? '1px solid #ffbc65'
+                        : '1px solid rgba(229, 162, 110, 0.35)',
+                      boxShadow: isActive ? '0 0 8px #ff9e3b' : 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      transition: 'all 0.2s ease',
+                    }}
+                    title={`View slide ${i + 1}`}
+                  />
+                );
+              })}
             </div>
-
-            {/* Inner corner bracket accents */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '4px',
-                left: '4px',
-                width: '8px',
-                height: '8px',
-                borderTop: '1px solid #e5a26e',
-                borderLeft: '1px solid #e5a26e',
-                pointerEvents: 'none',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '4px',
-                right: '4px',
-                width: '8px',
-                height: '8px',
-                borderBottom: '1px solid #e5a26e',
-                borderRight: '1px solid #e5a26e',
-                pointerEvents: 'none',
-              }}
-            />
           </div>
 
-          {/* 3 Thumbnails Directly Underneath */}
+          {/* 3 Thumbnails Directly Underneath (with tactical corner notches) */}
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
+              gridTemplateColumns: `repeat(${data.images.length}, 1fr)`,
               gap: '10px',
               width: '100%',
             }}
@@ -521,22 +651,24 @@ export default function MilestoneDossierModal({
                   onClick={() => setSelectedImageIndex(idx)}
                   onMouseEnter={() => setSelectedImageIndex(idx)}
                   style={{
-                    height: 'clamp(66px, 8.5vh, 80px)',
-                    borderRadius: '2px',
+                    height: 'clamp(68px, 9vh, 84px)',
+                    borderRadius: '1px',
                     overflow: 'hidden',
                     border: isSelected
-                      ? '1.8px solid #e5a26e'
-                      : '1px solid rgba(226, 157, 104, 0.25)',
+                      ? '1.8px solid #ff9e3b'
+                      : '1px solid rgba(190, 215, 235, 0.22)',
                     boxShadow: isSelected
-                      ? '0 0 12px rgba(229, 162, 110, 0.6)'
-                      : '0 2px 6px rgba(0, 0, 0, 0.5)',
+                      ? '0 0 14px rgba(255, 158, 59, 0.55), inset 0 0 8px rgba(255, 158, 59, 0.25)'
+                      : '0 2px 6px rgba(0, 0, 0, 0.6)',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'all 0.22s ease',
                     position: 'relative',
                     opacity: isSelected ? 1 : 0.65,
                     transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+                    background: '#04070a',
                   }}
                 >
+                  {/* Thumbnail Image */}
                   <div
                     style={{
                       width: '100%',
@@ -546,6 +678,88 @@ export default function MilestoneDossierModal({
                       backgroundPosition: 'center',
                     }}
                   />
+
+                  {/* Corner Accent Marks for Inactive/Active State */}
+                  {isSelected ? (
+                    <>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '2px',
+                          left: '2px',
+                          width: '5px',
+                          height: '5px',
+                          borderTop: '1.5px solid #ffbc65',
+                          borderLeft: '1.5px solid #ffbc65',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '2px',
+                          right: '2px',
+                          width: '5px',
+                          height: '5px',
+                          borderBottom: '1.5px solid #ffbc65',
+                          borderRight: '1.5px solid #ffbc65',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {/* Subtle Pale Corner Ticks (matches screenshot) */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '2px',
+                          left: '2px',
+                          width: '4px',
+                          height: '4px',
+                          borderTop: '1px solid rgba(215, 230, 245, 0.5)',
+                          borderLeft: '1px solid rgba(215, 230, 245, 0.5)',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '2px',
+                          right: '2px',
+                          width: '4px',
+                          height: '4px',
+                          borderTop: '1px solid rgba(215, 230, 245, 0.5)',
+                          borderRight: '1px solid rgba(215, 230, 245, 0.5)',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '2px',
+                          left: '2px',
+                          width: '4px',
+                          height: '4px',
+                          borderBottom: '1px solid rgba(215, 230, 245, 0.5)',
+                          borderLeft: '1px solid rgba(215, 230, 245, 0.5)',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '2px',
+                          right: '2px',
+                          width: '4px',
+                          height: '4px',
+                          borderBottom: '1px solid rgba(215, 230, 245, 0.5)',
+                          borderRight: '1px solid rgba(215, 230, 245, 0.5)',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    </>
+                  )}
                 </div>
               );
             })}
