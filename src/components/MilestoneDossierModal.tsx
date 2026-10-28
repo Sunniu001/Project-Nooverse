@@ -448,28 +448,7 @@ export default function MilestoneDossierModal({
               }}
             />
 
-            {/* Top-Left Telemetry Overlay on Image */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '12px',
-                left: '12px',
-                fontFamily: "var(--font-mono), 'Share Tech Mono', monospace",
-                fontSize: '10px',
-                letterSpacing: '1.5px',
-                color: 'rgba(240, 245, 250, 0.92)',
-                lineHeight: 1.4,
-                textShadow: '0 1px 4px rgba(0, 0, 0, 0.9)',
-                pointerEvents: 'none',
-              }}
-            >
-              <div style={{ color: '#e5a26e', marginBottom: '2px', fontSize: '11px' }}>
-                {activeImage.caption.tag}
-              </div>
-              <div style={{ fontWeight: 600 }}>{activeImage.caption.region}</div>
-              <div style={{ color: 'rgba(215, 225, 235, 0.75)' }}>{activeImage.caption.subRegion}</div>
-              <div style={{ color: 'rgba(215, 225, 235, 0.75)' }}>{activeImage.caption.year}</div>
-            </div>
+
 
             {/* Bottom-Left Micro Segmented Slider Indicator */}
             <div
@@ -626,67 +605,33 @@ export default function MilestoneDossierModal({
                   {data.title}
                 </h2>
 
-                {/* Subtitle Era Row */}
-                <div
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 'clamp(10px, 0.9vw, 11.5px)',
-                    fontWeight: 400,
-                    letterSpacing: '2.5px',
-                    color: 'rgba(235, 230, 224, 0.75)',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {data.era}
-                </div>
               </div>
 
-              {/* Right Side: Archive Classification & Close '✕' Button */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-                <div
-                  style={{
-                    textAlign: 'right',
-                    fontFamily: "var(--font-mono), 'Share Tech Mono', monospace",
-                    fontSize: '9px',
-                    letterSpacing: '1.2px',
-                    lineHeight: 1.45,
-                    color: 'rgba(215, 225, 235, 0.65)',
-                  }}
-                >
-                  <div>ARYAVERSE ARCHIVE</div>
-                  <div>{data.archiveRef}</div>
-                  <div>
-                    CLASSIFICATION:{' '}
-                    <span style={{ color: '#e5a26e', fontWeight: 600 }}>{data.classification}</span>
-                  </div>
-                </div>
-
-                {/* Close Button */}
-                <button
-                  onClick={onClose}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#e5a26e',
-                    fontSize: '18px',
-                    cursor: 'pointer',
-                    padding: '2px 4px',
-                    lineHeight: 1,
-                    transition: 'transform 0.2s ease, color 0.2s ease',
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.color = '#ffffff';
-                    e.currentTarget.style.transform = 'scale(1.15)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.color = '#e5a26e';
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                  title="Close Dossier"
-                >
-                  ✕
-                </button>
-              </div>
+              {/* Close '✕' Button */}
+              <button
+                onClick={onClose}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#e5a26e',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  padding: '2px 4px',
+                  lineHeight: 1,
+                  transition: 'transform 0.2s ease, color 0.2s ease',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = '#ffffff';
+                  e.currentTarget.style.transform = 'scale(1.15)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = '#e5a26e';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                title="Close Dossier"
+              >
+                ✕
+              </button>
             </div>
 
             {/* Subtle Divider Line with Orange Pip */}
@@ -744,7 +689,7 @@ export default function MilestoneDossierModal({
             </div>
           </div>
 
-          {/* Bottom Tactical Metadata Grid Box (3 Columns) */}
+          {/* Bottom Tactical Metadata Grid Box (2 Columns) */}
           <div
             style={{
               marginTop: '16px',
@@ -754,8 +699,8 @@ export default function MilestoneDossierModal({
               borderRadius: '2px',
               position: 'relative',
               display: 'grid',
-              gridTemplateColumns: '1.2fr 0.8fr 1.2fr',
-              columnGap: '14px',
+              gridTemplateColumns: '1.4fr 1fr',
+              columnGap: '16px',
               fontFamily: "var(--font-mono), 'Share Tech Mono', monospace",
             }}
           >
@@ -832,33 +777,6 @@ export default function MilestoneDossierModal({
               >
                 {data.period}
               </div>
-            </div>
-
-            {/* Column 3: FOCUS */}
-            <div>
-              <div
-                style={{
-                  fontSize: '9px',
-                  color: 'rgba(185, 205, 225, 0.6)',
-                  letterSpacing: '1.5px',
-                  marginBottom: '4px',
-                }}
-              >
-                FOCUS
-              </div>
-              {data.focus.map((f, i) => (
-                <div
-                  key={i}
-                  style={{
-                    fontSize: '11px',
-                    color: '#ffffff',
-                    letterSpacing: '0.8px',
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {f}
-                </div>
-              ))}
             </div>
           </div>
         </div>
